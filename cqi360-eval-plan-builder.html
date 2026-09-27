@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CQI360 | Program Evaluation Plan Builder</title>
+<style>
+  :root{
+    --navy:#0D2137;
+    --teal:#0B7A75;
+    --teal-light:#14A5A0;
+    --gold:#F4A825;
+    --slate:#334155;
+    --bg:#F7F8FA;
+    --card:#FFFFFF;
+    --border:#E2E5EA;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:Calibri,'Segoe UI',Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--slate);
+    line-height:1.5;
+  }
+  h1,h2,h3{font-family:Georgia,Cambria,'Times New Roman',serif;color:var(--navy);}
+  .app-header{
+    background:var(--navy);
+    color:#fff;
+    padding:28px 20px 22px;
+  }
+  .app-header .inner{max-width:920px;margin:0 auto;}
+  .app-header h1{color:#fff;font-size:1.5rem;margin:0 0 4px;}
+  .app-header p{margin:0;color:#C9D4DE;font-size:0.95rem;}
+  .app-header .purpose{
+    margin-top:14px;padding:12px 14px;background:rgba(255,255,255,0.06);
+    border-left:3px solid var(--gold);border-radius:4px;
+  }
+  .app-header .purpose .k{color:var(--gold);font-weight:bold;font-size:0.72rem;
+    text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;}
+  .app-header .purpose p{color:#E4E9EE;font-size:0.88rem;margin:0;}
+  .app-header .brand{
+    display:flex;align-items:center;gap:10px;margin-bottom:14px;
+  }
+  .app-header .brand-badge{
+    background:var(--gold);color:var(--navy);font-weight:bold;
+    font-family:Georgia,serif;padding:3px 10px;border-radius:4px;font-size:0.85rem;
+    letter-spacing:0.5px;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:22px 20px 60px;}
+
+  /* Stepper */
+  .stepper{
+    display:flex;overflow-x:auto;gap:6px;padding:14px 0 18px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .step-dot{
+    flex:0 0 auto;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    cursor:pointer;background:none;border:none;padding:4px 6px;
+    color:var(--slate);font-family:inherit;
+  }
+  .step-dot .circle{
+    width:30px;height:30px;border-radius:50%;
+    border:2px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    font-size:0.8rem;font-weight:bold;color:var(--slate);
+    background:#fff;
+  }
+  .step-dot.active .circle{border-color:var(--teal);background:var(--teal);color:#fff;}
+  .step-dot.done .circle{border-color:var(--teal-light);background:#E4F3F2;color:var(--teal);}
+  .step-dot .label{font-size:0.62rem;max-width:64px;text-align:center;color:#8592A3;}
+  .step-dot.active .label{color:var(--navy);font-weight:600;}
+
+  /* Card */
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:26px 24px;
+    box-shadow:0 1px 3px rgba(13,33,55,0.06);
+  }
+  .card .kicker{
+    color:var(--teal);font-weight:bold;font-size:0.75rem;
+    text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;
+  }
+  .card h2{font-size:1.35rem;margin:0 0 10px;}
+  .card .help{color:var(--slate);font-size:0.95rem;margin-bottom:20px;}
+  label{display:block;font-weight:600;color:var(--navy);font-size:0.9rem;margin:16px 0 6px;}
+  label:first-of-type{margin-top:0;}
+  textarea, input[type=text]{
+    width:100%;border:1px solid var(--border);border-radius:6px;
+    padding:10px 12px;font-family:inherit;font-size:0.92rem;color:var(--slate);
+    resize:vertical;background:#FCFCFD;
+  }
+  textarea{min-height:78px;}
+  textarea:focus, input[type=text]:focus{outline:none;border-color:var(--teal-light);background:#fff;}
+  .hint{font-size:0.78rem;color:#8592A3;margin-top:3px;}
+
+  .level-row{
+    display:flex;align-items:center;gap:10px;margin-bottom:8px;
+    padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:#FCFCFD;
+  }
+  .level-row input[type=checkbox]{width:17px;height:17px;accent-color:var(--teal);}
+  .level-row input[type=text]{flex:1;border:none;background:transparent;font-weight:600;color:var(--navy);padding:2px 4px;}
+
+  /* Matrix (Critical Behaviors) */
+  .matrix-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:0.85rem;}
+  .matrix-table th, .matrix-table td{border:1px solid var(--border);padding:6px;}
+  .matrix-table th{background:#F1F3F6;color:var(--navy);font-size:0.75rem;}
+  .matrix-table input[type=text]{padding:5px 6px;font-size:0.82rem;}
+  .add-row-btn{
+    margin-top:10px;background:#fff;border:1px dashed var(--teal-light);color:var(--teal);
+    padding:7px 12px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;
+  }
+  .remove-row{background:none;border:none;color:#C0392B;cursor:pointer;font-size:0.95rem;}
+
+  /* Nav buttons */
+  .nav-row{display:flex;justify-content:space-between;margin-top:22px;gap:10px;}
+  .btn{
+    border:none;border-radius:6px;padding:11px 18px;font-weight:600;font-size:0.9rem;
+    cursor:pointer;font-family:inherit;
+  }
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-primary:hover{background:var(--navy);}
+  .btn-secondary{background:#fff;border:1px solid var(--border);color:var(--slate);}
+  .btn-secondary:hover{border-color:var(--teal-light);}
+  .btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+  /* Reference panel */
+  .ref-toggle{
+    text-align:center;margin:26px 0 6px;
+  }
+  .ref-toggle button{
+    background:none;border:none;color:var(--teal);font-weight:600;cursor:pointer;
+    font-size:0.85rem;text-decoration:underline;font-family:inherit;
+  }
+  .ref-panel{display:none;margin-top:10px;}
+  .ref-panel.open{display:block;}
+  .ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+  @media(max-width:600px){.ref-grid{grid-template-columns:1fr;}}
+  .ref-item{
+    background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px 14px;
+  }
+  .ref-item .k{font-weight:bold;color:var(--navy);font-size:0.85rem;}
+  .ref-item .v{font-size:0.8rem;color:var(--slate);margin-top:2px;}
+
+  /* Summary / final step */
+  .summary-block{
+    background:#FCFCFD;border:1px solid var(--border);border-radius:8px;
+    padding:14px 16px;margin-bottom:12px;
+  }
+  .summary-block h3{font-size:0.95rem;margin:0 0 4px;color:var(--navy);}
+  .summary-block .empty{color:#A6AEBA;font-style:italic;font-size:0.85rem;}
+  .summary-block pre{
+    white-space:pre-wrap;word-wrap:break-word;font-family:inherit;font-size:0.85rem;
+    margin:4px 0 0;color:var(--slate);
+  }
+
+  .cta-box{
+    background:linear-gradient(135deg,var(--navy),#123049);
+    color:#fff;border-radius:10px;padding:22px 22px;margin-top:22px;
+  }
+  .cta-box h3{color:#fff;font-size:1.05rem;margin:0 0 8px;}
+  .cta-box p{color:#C9D4DE;font-size:0.9rem;margin:0 0 16px;}
+  .cta-actions{display:flex;flex-wrap:wrap;gap:10px;}
+  .cta-actions a, .cta-actions button{
+    display:inline-block;text-decoration:none;padding:10px 16px;border-radius:6px;
+    font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit;border:none;
+  }
+  .cta-gold{background:var(--gold);color:var(--navy);}
+  .cta-outline{background:transparent;border:1px solid #55708A !important;color:#fff;}
+
+  footer{text-align:center;color:#8592A3;font-size:0.78rem;padding:20px 0 40px;}
+  footer .fbrand{color:var(--navy);font-weight:bold;}
+
+  @media print{
+    .stepper, .nav-row, .ref-toggle, .cta-actions, .app-header{display:none !important;}
+    body{background:#fff;}
+    .card{box-shadow:none;border:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="inner">
+    <div class="brand"><span class="brand-badge">CQI360</span><span style="font-size:0.8rem;color:#9FB0C2;">Program Evaluation Plan Builder</span></div>
+    <h1>Build a Program Evaluation Plan</h1>
+    <p>An 11-step model for defining, measuring, and iterating on the evaluation of any program, project, or partnership &mdash; from objectives through a final plan.</p>
+    <div class="purpose">
+      <span class="k">Purpose</span>
+      <p>This tool walks you, step by step, through building a complete evaluation plan for your own program or project. Work through each step in order, entering your own content as you go. There's no single right answer &mdash; the goal is to leave with a plan you can act on, not just a filled-in form. Your progress saves automatically, so you can complete it in one sitting or come back to it later.</p>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="stepper" id="stepper"></div>
+
+  <div class="card" id="stepCard"></div>
+
+  <div class="nav-row">
+    <button class="btn btn-secondary" id="prevBtn">&larr; Previous</button>
+    <button class="btn btn-primary" id="nextBtn">Next &rarr;</button>
+  </div>
+
+  <div class="ref-toggle">
+    <button id="refToggleBtn">Show reference guide (reporting frameworks &amp; possible outputs)</button>
+  </div>
+  <div class="ref-panel" id="refPanel"></div>
+
+  <footer>
+    Built with the <span class="fbrand">CQI360</span> Eval Model &middot; Your entries save automatically in this browser &middot; <a href="mailto:david.green@cqi360.com" style="color:#8592A3;">david.green@cqi360.com</a>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — all step content lives here. Edit this block to
+   retarget the tool without touching the engine below.
+   ============================================================ */
+const CONFIG = {
+  storageKey: 'cqi360_eval_plan_v1',
+  steps: [
+    {
+      n:1, label:'OKRs', title:'Generate OKRs',
+      kicker:'Define objectives and key results',
+      help:'Start by naming what success looks like. Objectives are the qualitative destination; Key Results are the measurable signposts that tell you when you have arrived.',
+      fields:[
+        {id:'okr_objectives', label:'Objectives — what are you trying to achieve? (1-3 broad statements)', placeholder:'e.g., Improve onboarding effectiveness for new team members'},
+        {id:'okr_keyresults', label:'Key Results — how will you know you got there?', placeholder:'e.g., 90% of new hires reach full productivity within 60 days'}
+      ]
+    },
+    {
+      n:2, label:'Key Elements', title:'Define Key Elements',
+      kicker:'Name the components of the program',
+      help:'List the key elements that collectively make up the program you are evaluating. These are the building blocks everything else in the plan will map back to.',
+      fields:[
+        {id:'key_elements', label:'List the key elements of your program (one per line)', placeholder:'e.g., Onboarding process, Training curriculum, Mentorship structure, Communication cadence, Tools & systems access, Feedback loops'}
+      ]
+    },
+    {
+      n:3, label:'Behaviors', title:'Define Critical Behaviors',
+      kicker:'Specify skills, competencies, and progression',
+      help:'For each critical skill or behavior, describe what progression from developing to sustained mastery looks like. This becomes your rubric for individual-level assessment. Add a row for each skill you plan to assess.',
+      matrix:true
+    },
+    {
+      n:4, label:'Levels', title:'Determine Levels of Analysis',
+      kicker:'Choose the levels your evaluation covers',
+      help:'Most evaluations examine three levels: the individual, the partnership or team, and the program overall. Confirm which levels apply, and rename any label to match your context (e.g., "Team" instead of "Partnership").',
+      levels:true
+    },
+    {
+      n:5, label:'Alignment', title:'Align Foundational Elements with Levels of Analysis',
+      kicker:'Map elements and dimensions to each level',
+      help:'For each level of analysis you selected, describe the dimensions you will evaluate and the outcomes you expect to see.',
+      fields:[
+        {id:'align_individual', label:'Individual level — dimensions & expected outcomes', placeholder:'e.g., Engagement (behavioral, cognitive, affective), knowledge gain, ability to transfer skills, sustained mastery'},
+        {id:'align_partnership', label:'Partnership / Team level — dimensions & expected outcomes', placeholder:'e.g., Collaboration quality, performance, support capacity, teamwork, shared attitudes and values'},
+        {id:'align_program', label:'Program level — dimensions & expected outcomes', placeholder:'e.g., Cross-site or cross-team comparisons, alignment with OKRs, gaps and needs, readiness and sustainment'}
+      ]
+    },
+    {
+      n:6, label:'Summaries', title:'Explain Anticipated Summaries',
+      kicker:'Describe what reporting will look like at each level',
+      help:'Before you collect any data, describe the kind of summary report you expect to produce for each level. This keeps data collection focused on what will actually be reported.',
+      fields:[
+        {id:'summary_individual', label:'Individual-level summary — what will it show?', placeholder:'e.g., Individual performance and assessment summaries against the critical-behavior rubric'},
+        {id:'summary_partnership', label:'Partnership/Team-level summary — what will it show?', placeholder:'e.g., Partnership-level summaries of collaboration, capacity, and outcomes'},
+        {id:'summary_program', label:'Program-level summary — what will it show?', placeholder:'e.g., Informative readiness and sustainment summaries; process maps visualizing roles, gaps, and needs'}
+      ]
+    },
+    {
+      n:7, label:'Outcomes', title:'Relate Foundational Elements to Outcomes',
+      kicker:'Connect elements to expected results',
+      help:'For each key element, describe the outcome it should produce and how that outcome connects back to your OKRs.',
+      fields:[
+        {id:'outcomes_map', label:'Element → expected outcome (one pair per line)', placeholder:'e.g., Mentorship structure → new hires report higher confidence and faster ramp-up'}
+      ]
+    },
+    {
+      n:8, label:'Tools', title:'Validate Outcomes with Data Collection Tools',
+      kicker:'Choose your instruments',
+      help:'Decide how each outcome will actually be measured. Note: once "as measured by ..." is defined for every element, you can validate it against your original research questions.',
+      fields:[
+        {id:'tools_list', label:'Data collection tools & instruments', placeholder:'e.g., Pre/post surveys, structured interviews, performance rubrics, system usage logs, focus groups'},
+        {id:'research_questions', label:'Research questions this evaluation is designed to answer', placeholder:'e.g., What are the gaps or needs at each level? What does success look like for each stakeholder group?'}
+      ]
+    },
+    {
+      n:9, label:'Analyze', title:'Collect Data and Analyze',
+      kicker:'Gather and interpret the data',
+      help:'Describe your data collection timeline and analysis approach — who collects what, when, and how it gets analyzed.',
+      fields:[
+        {id:'collect_timeline', label:'Collection timeline & responsible parties', placeholder:'e.g., Baseline survey at week 1, mid-point check at week 30, final assessment at week 60'},
+        {id:'analysis_approach', label:'Analysis approach', placeholder:'e.g., Descriptive statistics by level, thematic coding of interviews, trend comparison across cycles'}
+      ]
+    },
+    {
+      n:10, label:'Iterate', title:'Iterate with Trials (CQI)',
+      kicker:'Test, refine, and repeat',
+      help:'Continuous quality improvement means treating the first pass as a trial, not a final answer. Describe how you will revise the plan based on what you learn.',
+      fields:[
+        {id:'cqi_cycle', label:'What will you revisit after each cycle, and how often?', placeholder:'e.g., Review key elements and rubric quarterly; adjust data collection tools based on response rates'}
+      ]
+    },
+    {
+      n:11, label:'Final Plan', title:'Generate Final Eval Plan',
+      kicker:'Compile everything into one plan',
+      help:'Here is your evaluation plan, compiled from every step. Review it, export it, print it, or send it to CQI360 for a second pair of eyes.',
+      summary:true
+    }
+  ],
+  reference: {
+    reportingFrameworks:[
+      {k:'Intent', v:'OKRs — Objectives and Key Results'},
+      {k:'Performance', v:'SWOT — Strengths, Weaknesses, Opportunities, Threats'},
+      {k:'Learnings', v:'KMO gap analysis — Knowledge, Motivation, Organization'},
+      {k:'Next Time', v:'Keep-Fix-Stop-Start analysis'},
+      {k:'Key Recommendations', v:'CIPP evaluation — Context, Input, Process, Product'}
+    ],
+    possibleOutputs:[
+      {k:'Swimlane / process map', v:'Visualize stakeholders, roles, decision points, and data-collection opportunities'},
+      {k:'OKR diagram', v:'Define metrics and align critical behaviors across stakeholder groups'},
+      {k:'Assessment tools', v:'Used by stakeholders during evaluations to ensure consistency and quality'},
+      {k:'Infographic', v:'Communicate critical behaviors and skills at a glance'},
+      {k:'Balanced scorecard summary', v:'Visually describe needs and recommendations at each level of analysis'}
+    ]
+  }
+};
+
+/* ============================================================
+   ENGINE — generic; do not need to edit below this line
+   ============================================================ */
+let state = { current:0, data:{}, matrixRows:[], levels:[
+  {id:'individual', label:'Individual', checked:true},
+  {id:'partnership', label:'Partnership / Team', checked:true},
+  {id:'program', label:'Program', checked:true}
+]};
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(CONFIG.storageKey);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      state = Object.assign(state, parsed);
+    }
+  }catch(e){ /* ignore, start fresh */ }
+  if(!state.matrixRows || state.matrixRows.length===0){
+    state.matrixRows = [ emptyMatrixRow() ];
+  }
+}
+function saveState(){
+  try{ localStorage.setItem(CONFIG.storageKey, JSON.stringify(state)); }catch(e){}
+}
+function emptyMatrixRow(){
+  return { skill:'', l1:'', l2:'', l3:'', l4:'', l5:'', target:'' };
+}
+
+function renderStepper(){
+  const el = document.getElementById('stepper');
+  el.innerHTML = '';
+  CONFIG.steps.forEach((s,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'step-dot' + (i===state.current?' active':'') + (i<state.current?' done':'');
+    btn.innerHTML = `<span class="circle">${i<state.current?'&#10003;':s.n}</span><span class="label">${s.label}</span>`;
+    btn.onclick = ()=>{ state.current = i; render(); };
+    el.appendChild(btn);
+  });
+}
+
+function fieldHTML(f){
+  const val = state.data[f.id] || '';
+  return `<label for="${f.id}">${f.label}</label>
+    <textarea id="${f.id}" data-field="${f.id}" placeholder="${f.placeholder||''}">${escapeHtml(val)}</textarea>`;
+}
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderMatrix(){
+  let rows = state.matrixRows.map((r,idx)=>`
+    <tr data-row="${idx}">
+      <td><input type="text" data-m="skill" data-row="${idx}" value="${escapeHtml(r.skill)}" placeholder="Skill/behavior name"></td>
+      <td><input type="text" data-m="l1" data-row="${idx}" value="${escapeHtml(r.l1)}" placeholder="Level 1"></td>
+      <td><input type="text" data-m="l2" data-row="${idx}" value="${escapeHtml(r.l2)}" placeholder="Level 2"></td>
+      <td><input type="text" data-m="l3" data-row="${idx}" value="${escapeHtml(r.l3)}" placeholder="Level 3"></td>
+      <td><input type="text" data-m="l4" data-row="${idx}" value="${escapeHtml(r.l4)}" placeholder="Level 4"></td>
+      <td><input type="text" data-m="l5" data-row="${idx}" value="${escapeHtml(r.l5)}" placeholder="Sustained/Level 5"></td>
+      <td><input type="text" data-m="target" data-row="${idx}" value="${escapeHtml(r.target)}" placeholder="Target"></td>
+      <td><button class="remove-row" data-remove="${idx}" title="Remove row">&#10005;</button></td>
+    </tr>`).join('');
+  return `
+    <div style="overflow-x:auto;">
+    <table class="matrix-table">
+      <thead><tr>
+        <th>Key function / competency</th><th>Developing</th><th>Level 2</th><th>Level 3</th><th>Level 4</th><th>Expected for sustainment</th><th>Target</th><th></th>
+      </tr></thead>
+      <tbody id="matrixBody">${rows}</tbody>
+    </table>
+    </div>
+    <button class="add-row-btn" id="addMatrixRow">+ Add another skill/behavior</button>
+  `;
+}
+
+function renderLevels(){
+  return state.levels.map((lv,idx)=>`
+    <div class="level-row">
+      <input type="checkbox" data-level-check="${idx}" ${lv.checked?'checked':''}>
+      <input type="text" data-level-label="${idx}" value="${escapeHtml(lv.label)}">
+    </div>`).join('') + `<p class="hint">Uncheck a level that does not apply to your project, or rename any label to fit your context.</p>`;
+}
+
+function renderSummary(){
+  const s = CONFIG.steps;
+  const blocks = [];
+  s.forEach(step=>{
+    if(step.fields){
+      step.fields.forEach(f=>{
+        const v = state.data[f.id];
+        blocks.push({title:`${step.n}. ${step.title} — ${f.label.split('—')[0].split('?')[0].trim()}`, value:v});
+      });
+    }
+  });
+  let matrixText = state.matrixRows.filter(r=>r.skill).map(r=>
+    `• ${r.skill}: ${r.l1||'-'} → ${r.l2||'-'} → ${r.l3||'-'} → ${r.l4||'-'} → ${r.l5||'-'} (target: ${r.target||'-'})`
+  ).join('\n');
+  let levelsText = state.levels.filter(l=>l.checked).map(l=>l.label).join(', ');
+
+  let html = `<div class="summary-block"><h3>3. Define Critical Behaviors</h3>${matrixText? `<pre>${escapeHtml(matrixText)}</pre>` : '<div class="empty">No behaviors entered yet.</div>'}</div>`;
+  html += `<div class="summary-block"><h3>4. Levels of Analysis</h3>${levelsText? `<pre>${escapeHtml(levelsText)}</pre>` : '<div class="empty">No levels selected.</div>'}</div>`;
+  blocks.forEach(b=>{
+    html += `<div class="summary-block"><h3>${b.title}</h3>${b.value? `<pre>${escapeHtml(b.value)}</pre>` : '<div class="empty">Not yet entered.</div>'}</div>`;
+  });
+  return html;
+}
+
+function compilePlanText(){
+  let out = 'PROGRAM EVALUATION PLAN\nBuilt with the CQI360 Eval Model\n' + new Date().toLocaleDateString() + '\n\n';
+  CONFIG.steps.forEach(step=>{
+    out += `${step.n}. ${step.title}\n${'-'.repeat(40)}\n`;
+    if(step.matrix){
+      const rows = state.matrixRows.filter(r=>r.skill);
+      if(rows.length===0) out += '(not yet entered)\n';
+      rows.forEach(r=>{
+        out += `- ${r.skill}: ${r.l1||'-'} → ${r.l2||'-'} → ${r.l3||'-'} → ${r.l4||'-'} → ${r.l5||'-'} (target: ${r.target||'-'})\n`;
+      });
+    } else if(step.levels){
+      const lv = state.levels.filter(l=>l.checked).map(l=>l.label);
+      out += (lv.length? lv.join(', ') : '(none selected)') + '\n';
+    } else if(step.fields){
+      step.fields.forEach(f=>{
+        out += `${f.label}\n${state.data[f.id] || '(not yet entered)'}\n\n`;
+      });
+    }
+    out += '\n';
+  });
+  return out;
+}
+
+function renderStepCard(){
+  const step = CONFIG.steps[state.current];
+  const card = document.getElementById('stepCard');
+  let inner = `<div class="kicker">${step.kicker}</div><h2>${step.n}. ${step.title}</h2><div class="help">${step.help}</div>`;
+
+  if(step.matrix){
+    inner += renderMatrix();
+  } else if(step.levels){
+    inner += renderLevels();
+  } else if(step.summary){
+    inner += renderSummary();
+    inner += `
+      <div class="cta-box">
+        <h3>Save your plan</h3>
+        <p>Export a text copy for your records, print a clean version, or send it to CQI360 for an outside read before you finalize it.</p>
+        <div class="cta-actions">
+          <button class="cta-gold" id="exportBtn">Export as text file</button>
+          <button class="cta-outline" id="printBtn">Print / Save as PDF</button>
+          <a class="cta-outline" id="emailBtn" href="#">Email plan to CQI360</a>
+        </div>
+        <p style="margin:16px 0 0;padding-top:14px;border-top:1px solid #2A4560;color:#C9D4DE;font-size:0.85rem;">
+          A plan is only as good as its execution. If you'd like a second pair of eyes on this one, help turning it into a data collection process, or hands-on support running the first cycle, CQI360 works with teams to do exactly that &mdash; visit <a href="https://cqi360.com" target="_blank" rel="noopener" style="color:var(--gold);font-weight:600;">cqi360.com</a> or email <a href="mailto:david.green@cqi360.com" style="color:var(--gold);font-weight:600;">david.green@cqi360.com</a> to talk it through.
+        </p>
+      </div>`;
+  } else if(step.fields){
+    inner += step.fields.map(fieldHTML).join('');
+  }
+  card.innerHTML = inner;
+
+  // Wire up field listeners
+  card.querySelectorAll('textarea[data-field]').forEach(ta=>{
+    ta.addEventListener('input', e=>{
+      state.data[e.target.dataset.field] = e.target.value;
+      saveState();
+    });
+  });
+
+  if(step.matrix){
+    card.querySelectorAll('input[data-m]').forEach(inp=>{
+      inp.addEventListener('input', e=>{
+        const row = parseInt(e.target.dataset.row,10);
+        const key = e.target.dataset.m;
+        state.matrixRows[row][key] = e.target.value;
+        saveState();
+      });
+    });
+    card.querySelectorAll('[data-remove]').forEach(btn=>{
+      btn.addEventListener('click', e=>{
+        const row = parseInt(e.target.dataset.remove,10);
+        state.matrixRows.splice(row,1);
+        if(state.matrixRows.length===0) state.matrixRows.push(emptyMatrixRow());
+        saveState();
+        renderStepCard();
+      });
+    });
+    document.getElementById('addMatrixRow').addEventListener('click', ()=>{
+      state.matrixRows.push(emptyMatrixRow());
+      saveState();
+      renderStepCard();
+    });
+  }
+
+  if(step.levels){
+    card.querySelectorAll('[data-level-check]').forEach(cb=>{
+      cb.addEventListener('change', e=>{
+        state.levels[parseInt(e.target.dataset.levelCheck,10)].checked = e.target.checked;
+        saveState();
+      });
+    });
+    card.querySelectorAll('[data-level-label]').forEach(inp=>{
+      inp.addEventListener('input', e=>{
+        state.levels[parseInt(e.target.dataset.levelLabel,10)].label = e.target.value;
+        saveState();
+        renderStepper();
+      });
+    });
+  }
+
+  if(step.summary){
+    document.getElementById('exportBtn').addEventListener('click', ()=>{
+      const blob = new Blob([compilePlanText()], {type:'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'program-evaluation-plan.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+    document.getElementById('printBtn').addEventListener('click', ()=> window.print());
+    const emailLink = document.getElementById('emailBtn');
+    const subject = encodeURIComponent('My Program Evaluation Plan (CQI360 Eval Model)');
+    const body = encodeURIComponent(compilePlanText().slice(0,6000));
+    emailLink.href = `mailto:david.green@cqi360.com?subject=${subject}&body=${body}`;
+  }
+}
+
+function renderNav(){
+  const prev = document.getElementById('prevBtn');
+  const next = document.getElementById('nextBtn');
+  prev.disabled = state.current===0;
+  next.textContent = state.current===CONFIG.steps.length-1 ? 'Done' : 'Next →';
+  next.disabled = state.current===CONFIG.steps.length-1;
+}
+
+function renderRef(){
+  const panel = document.getElementById('refPanel');
+  const r = CONFIG.reference;
+  panel.innerHTML = `
+    <h3 style="font-size:1rem;">Reporting frameworks</h3>
+    <p class="help" style="margin-bottom:6px;">A final narrative report typically covers these five questions, each supported by a familiar analytical framework:</p>
+    <div class="ref-grid">
+      ${r.reportingFrameworks.map(i=>`<div class="ref-item"><div class="k">${i.k}</div><div class="v">${i.v}</div></div>`).join('')}
+    </div>
+    <h3 style="font-size:1rem;margin-top:18px;">Possible outputs</h3>
+    <p class="help" style="margin-bottom:6px;">This process can yield several stand-alone work products along the way:</p>
+    <div class="ref-grid">
+      ${r.possibleOutputs.map(i=>`<div class="ref-item"><div class="k">${i.k}</div><div class="v">${i.v}</div></div>`).join('')}
+    </div>
+  `;
+}
+
+function render(){
+  renderStepper();
+  renderStepCard();
+  renderNav();
+}
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  if(state.current>0){ state.current--; render(); }
+});
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  if(state.current<CONFIG.steps.length-1){ state.current++; render(); }
+});
+document.getElementById('refToggleBtn').addEventListener('click', (e)=>{
+  const panel = document.getElementById('refPanel');
+  panel.classList.toggle('open');
+  e.target.textContent = panel.classList.contains('open') ? 'Hide reference guide' : 'Show reference guide (reporting frameworks & possible outputs)';
+});
+
+loadState();
+renderRef();
+render();
+</script>
+</body>
+</html>
